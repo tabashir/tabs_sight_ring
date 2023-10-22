@@ -25,9 +25,13 @@ thread_tube_length=10;
 // how much of tube should not be threaded
 thread_tube_offset=3;
 
-// Threaded Tube to screw onto sight bar - defaults 8-32 UNC
-thread_tube_hole_diameter=4.7;
-thread_tube_pitch=0.795;
+// Threaded Tube to screw onto sight bar.  M4=4.0, UNC8-32=4.16. (May need adjusting for printer accuracy)
+thread_tube_hole_diameter=4.0;
+// thread_tube_hole_diameter=4.16;
+
+// Pitch of threaded Tube to screw onto sight bar. M4=0.7, UNC8-32=0.795
+thread_tube_pitch=0.7;
+// thread_tube_pitch=0.795;
 
 // percent distance down the thread tube to put a ring like the aae pin (-1 to disable)
 aae_percent_displacement=0;
