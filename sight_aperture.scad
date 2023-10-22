@@ -2,7 +2,7 @@ include <BOSL2/std.scad>
 include <BOSL2/threading.scad>
 
 // width of the outer ring wall
-ring_thickness=1.0;
+ring_thickness=1.2;
 
 // diameter of outer ring
 ring_outer_diameter=14;
@@ -14,10 +14,10 @@ ring_sight_depth=8;
 pin_inner_hole_diameter=3.1;
 
 // width of the stay for the pinhole
-pin_stay_thickness=0.3;
+pin_stay_thickness=0.4;
 
 // width of the ring for the pinhole
-pin_ring_thickness=0.6;
+pin_ring_thickness=0.8;
 
 // depth of the pin as percent of total ring height
 pin_depth_percent=80;
@@ -43,8 +43,10 @@ aae_width = 3;
 // percentage of sight radius to make the aae bar
 aae_height_percent = 130;
 
-// how deep should label go. Zero should not show it
-label_depth=0.3;
+// how deep should label go. Zero hides, negative protrudes out, positive cuts it out.
+label_depth=-0.6;
+
+label_font="Liberation Sans:style=Bold";
 
 // calculated from the above
 ring_outer_radius=ring_outer_diameter/2;
@@ -59,11 +61,11 @@ pin_height=ring_sight_depth*pin_depth_percent/100;
 aae_mm_displacement = ring_horiz_trans+(thread_tube_length*aae_percent_displacement/100);
 aae_bar_height = (ring_outer_diameter * aae_height_percent)/100;
 
-label = str(pin_inner_hole_diameter);
-label_size=ring_sight_depth/2;
+label_text = str(pin_inner_hole_diameter);
+label_size=ring_sight_depth/2.5;
 label_horiz_trans = 0-ring_outer_radius-(thread_tube_length*0.8);
 label_vert_trans = label_size/2;
-label_z_trans = ring_sight_depth-label_depth;
+label_shim = 0+0.05;
 
 $fn=$preview ? 25 : 200;
 $fa=$preview ? 3 : 0.1;
@@ -105,6 +107,12 @@ difference() {
     translate([0,0,pin_height/2]) {
       cube([ring_outer_diameter-ring_thickness, pin_stay_thickness, pin_height], center=true);
     }
+
+    if ( label_depth < 0 ) {
+      label_z_trans = ring_sight_depth-label_shim;
+      label(label_text, label_size, label_font, label_vert_trans, label_horiz_trans, label_z_trans);
+    }
+
   }
 
   // aperture hole
@@ -112,13 +120,21 @@ difference() {
     cylinder(d=pin_inner_hole_diameter,h=ring_sight_depth+2);
   }
 
-  translate([label_vert_trans, label_horiz_trans, label_z_trans]) {
-    rotate([0,0,90]) {
-      linear_extrude(2) text( label, size=label_size );
-    }
+  if ( label_depth > 0 ) {
+    label_z_trans = ring_sight_depth+label_shim-label_depth;
+      label(label_text, label_size, label_font, label_vert_trans, label_horiz_trans, label_z_trans);
   }
 
+}
 
+module label(label_text, label_size, label_font, label_vert_trans, label_horiz_trans, label_z_trans) {
+  translate([label_vert_trans, label_horiz_trans, label_z_trans]) {
+    rotate([0,0,90]) {
+      color("green") {
+        linear_extrude(abs(label_depth)) text( label_text, size=label_size, font=label_font );
+      }
+    }
+  }
 }
 
 module tube(outer_diameter, wall_thickness, height) {
